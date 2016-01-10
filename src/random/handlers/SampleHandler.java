@@ -7,6 +7,7 @@ import java.awt.image.BufferedImage;
 import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
+import java.util.GregorianCalendar;
 
 import javax.imageio.ImageIO;
 import javax.swing.text.View;
@@ -71,9 +72,10 @@ public class SampleHandler extends AbstractHandler {
 		
 		IEditorPart editorPart = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
 
-		ITextOperationTarget target = (ITextOperationTarget)editorPart.getAdapter(ITextOperationTarget.class);
+		final ITextOperationTarget target = (ITextOperationTarget)editorPart.getAdapter(ITextOperationTarget.class);
+		
 		if (target instanceof ITextViewer) {
-			ITextViewer textViewer = (ITextViewer)target;
+			final ITextViewer textViewer = (ITextViewer)target;
 		
 				
 			/* 
@@ -99,14 +101,8 @@ public class SampleHandler extends AbstractHandler {
 		    area.height = window.getShell().getBounds().height;
 		    area.width = window.getShell().getBounds().width;
 	        BufferedImage Image1 = robot.createScreenCapture(area);
-	        ImageIO.write(Image1, "jpg", new File("C:\\image1"+".jpg"));
-	        
-	        area.x = Part.x;
-		    area.y = Part.y;
-		    area.height = Part.height;
-		    area.width = Part.width;
-	        BufferedImage Image2 = robot.createScreenCapture(area);
-	        ImageIO.write(Image2, "jpg", new File("C:\\image2"+".jpg"));
+	        ImageIO.write(Image1, "jpg", new File("image1"+".jpg"));
+	   
 	        
 			Shell[] comp = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getShells();
 			for(int i=0;i<comp.length;i++){
@@ -120,7 +116,7 @@ public class SampleHandler extends AbstractHandler {
 			    //File temp = File.createTempFile("/home/samidha/Desktop/xamppppp", ".jpg");
 
 		        // Use the ImageIO API to write the bufferedImage to a temporary file
-		        ImageIO.write(bufferedImage, "jpg", new File("C:\\test"+i+".jpg"));
+		        ImageIO.write(bufferedImage, "jpg", new File("test"+i+".jpg"));
 			} 
 			System.out.println("1. Text Viewer Height : " + r.height + " and Width = "+ r.width);
 			System.out.println("2. Text Viewer Coordinates : ("+r.x+","+r.y+")");
@@ -142,20 +138,10 @@ public class SampleHandler extends AbstractHandler {
 			Color col = textViewer.getTextWidget().getBackground();
 			System.out.println("7. Background Colour : "+col.toString());	
 			
-			
-			
-			
-			
 		    r = textViewer.getTextWidget().getBounds();
-		    Composite s = textViewer.getTextWidget().getParent();
-		    org.eclipse.swt.graphics.Rectangle t = s.getBounds();
-		    //System.out.println(s.getParent().getBounds());
-		    
 		    Point absolute = textViewer.getTextWidget().toDisplay(r.x, r.y);
 		    r.x = absolute.x;
 		    r.y = absolute.y;
-		    
-		    
 		    area.x= r.x;
 		    area.y = r.y;
 		    area.height = r.height;
@@ -165,8 +151,8 @@ public class SampleHandler extends AbstractHandler {
 		    File temp = File.createTempFile("/home/samidha/Desktop/xamppppp", ".jpg");
 
 	        // Use the ImageIO API to write the bufferedImage to a temporary file
-	        ImageIO.write(bufferedImage, "jpg", new File("C:\\test.jpg"));
-	        System.out.println(temp.getPath());
+	        ImageIO.write(bufferedImage, "jpg", new File("test.jpg"));
+	        //System.out.println(temp.getPath());
 	        // Delete temp file when program exits.
 	        //temp.deleteOnExit();
 		
@@ -228,7 +214,7 @@ public class SampleHandler extends AbstractHandler {
 					//<Size> SIZE </Size>
 					//<Style> STYLE </Style>
 			         Element name = doc.createElement("Name");
-			         name.appendChild(doc.createTextNode(firstFontData.name));
+			         name.appendChild(doc.createTextNode(firstFontData.getName()));
 			         carname1.appendChild(name);
 			         supercar.appendChild(carname1);
 			         
@@ -238,7 +224,7 @@ public class SampleHandler extends AbstractHandler {
 			         supercar.appendChild(carname1);
 			         
 			         Element style = doc.createElement("Style");
-			         style.appendChild(doc.createTextNode(""+firstFontData.style));
+			         style.appendChild(doc.createTextNode(""+firstFontData.getStyle()));
 			         carname1.appendChild(style);
 			         supercar.appendChild(carname1);
 			         // write the content into xml file
@@ -248,7 +234,7 @@ public class SampleHandler extends AbstractHandler {
 						transformer = transformerFactory.newTransformer();
 					
 			         DOMSource source = new DOMSource(doc);
-			         StreamResult result = new StreamResult(new File("C:\\ide.xml"));
+			         StreamResult result = new StreamResult(new File("ide.xml"));
 			        
 						transformer.transform(source, result);
 					
@@ -256,6 +242,40 @@ public class SampleHandler extends AbstractHandler {
 			         StreamResult consoleResult = new StreamResult(System.out);
 			         
 						transformer.transform(source, consoleResult);
+						
+						
+						
+						
+						
+						
+						printLineNumber(1); // The main fuction that gets the current line number
+						
+						Job job = new Job("Running the job") {
+							@Override
+							protected IStatus run(IProgressMonitor monitor) {
+								int queryNumber = 1;
+								//ITextViewer textViewer = (ITextViewer)target;
+								//int temp = 0;
+								while(true){
+									
+									try {
+										// We simulate a long running operation here
+										Thread.sleep(2000);
+										
+											queryNumber++;
+											printLineNumber(queryNumber);
+										
+									} catch (InterruptedException e) {
+										e.printStackTrace();
+									}
+									
+									
+								}
+							}
+						};
+						
+						job.setUser(true);
+						job.schedule();
 					} catch (TransformerException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -271,26 +291,17 @@ public class SampleHandler extends AbstractHandler {
 				e1.printStackTrace();
 			}
 			}
-		printLineNumber(); // The main fuction that gets the current line number
-		Job job = new Job("Running the job") {
-			@Override
-			protected IStatus run(IProgressMonitor monitor) {
-				while(true){
-					try {
-						// We simulate a long running operation here
-						Thread.sleep(2000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-					printLineNumber();
-				}
-			}
-		};
-		job.setUser(true);
-		job.schedule();
+		
+		
+		
 		return null;
 	}
-	public void printLineNumber() {
+	
+	
+	
+	
+	
+	public void printLineNumber(final int queryNumber) {
 		Display.getDefault().asyncExec(new Runnable() {
 			@SuppressWarnings("unused")
 			@Override
@@ -367,7 +378,7 @@ public class SampleHandler extends AbstractHandler {
 						documentBuilder = documentBuilderFactory.newDocumentBuilder();
 					      
 						/* parse existing file to DOM */
-						Document doc = documentBuilder.parse(new File("C:\\ide.xml"));
+						Document doc = documentBuilder.parse(new File("ide.xml"));
 						Element root = doc.getDocumentElement();
 						//System.out.println(root);
 						Element supercar = doc.createElement("mode");
@@ -377,6 +388,22 @@ public class SampleHandler extends AbstractHandler {
 				         attr.setValue("Dynamic");
 				         supercar.setAttributeNode(attr);
 						
+				         Element carname6 = doc.createElement("data");
+				         Attr attrType6 = doc.createAttribute("category");
+				         attrType6.setValue("Query_Number");
+				         carname6.setAttributeNode(attrType6);
+				         
+				         carname6.appendChild(doc.createTextNode(""+queryNumber));
+				         supercar.appendChild(carname6);
+				         
+				         Element carname7 = doc.createElement("data");
+				         Attr attrType7 = doc.createAttribute("category");
+				         attrType7.setValue("Time_Stamp");
+				         carname7.setAttributeNode(attrType7);
+				         
+				         carname7.appendChild(doc.createTextNode(""+new GregorianCalendar().getTime()));
+				         supercar.appendChild(carname7);
+				         
 				         //line number info
 				         Element carname1 = doc.createElement("data");
 				         Attr attrType1 = doc.createAttribute("category");
@@ -443,6 +470,8 @@ public class SampleHandler extends AbstractHandler {
 				         carname4.appendChild(doc.createTextNode(""+textViewer.getTextWidget().getLinePixel(topIndex-1)));
 				         supercar.appendChild(carname4);
 				         
+				       
+				         
 				         //Cursor Position info
 				         if( startLine == endLine ) {
 								// No selection
@@ -490,7 +519,7 @@ public class SampleHandler extends AbstractHandler {
 							
 						
 				         DOMSource source = new DOMSource(doc);
-				         StreamResult result = new StreamResult(new File("C:\\ide.xml"));
+				         StreamResult result = new StreamResult(new File("ide.xml"));
 				        
 							transformer.transform(source, result);
 						
@@ -516,10 +545,13 @@ public class SampleHandler extends AbstractHandler {
 							e.printStackTrace();
 						}
 					} 
+					
+
 				}
 			}
 		});
-
+	
+		
 	}
 	/**
 	 * the command has been executed, so extract the needed information
