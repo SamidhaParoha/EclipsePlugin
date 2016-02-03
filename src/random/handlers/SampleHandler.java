@@ -42,14 +42,18 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextOperationTarget;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.ITextViewer;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.FontMetrics;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -122,6 +126,14 @@ public class SampleHandler extends AbstractHandler {
 			System.out.println("2. Text Viewer Coordinates : ("+r.x+","+r.y+")");
 			System.out.println("3. Active Tab : "+PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActivePart().getSite().getPage().getActiveEditor().getEditorInput().getName());
 			org.eclipse.swt.graphics.Font ff = textViewer.getTextWidget().getFont();
+			Display display = textViewer.getTextWidget().getDisplay();
+			Shell shell = new Shell(display);
+
+		    Text text = new Text(shell, SWT.NONE);
+
+		    GC gc = new GC(text);
+		    FontMetrics fm = gc.getFontMetrics();
+		    int charWidth = fm.getAverageCharWidth();
 			FontData f[] = ff.getFontData();
 			//FontData[] fData=f.getFontData();
 			FontData firstFontData=f[0];
@@ -155,7 +167,14 @@ public class SampleHandler extends AbstractHandler {
 	        //System.out.println(temp.getPath());
 	        // Delete temp file when program exits.
 	        //temp.deleteOnExit();
-		
+	        //Display display = new Display();
+		    //Shell shell = new Shell(display);
+
+		    //Text text = new Text(shell, SWT.NONE);
+
+		    //GC gc = new GC(text);
+		    //FontMetrics fm = gc.getFontMetrics();
+		    //int charWidth = fm.getAverageCharWidth();
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 			         Document doc = dBuilder.newDocument();
@@ -191,12 +210,12 @@ public class SampleHandler extends AbstractHandler {
 			         //<XOrigin> ORIGIN : X </XOrigin>
 					//	<YOrigin> ORIGIN : Y </YOrigin>
 			         Element xorigin = doc.createElement("XOrigin");			         
-			         xorigin.appendChild(doc.createTextNode("X ORIGIN : "+Integer.toString(r.x)));
+			         xorigin.appendChild(doc.createTextNode(Integer.toString(r.x)));
 			         carname.appendChild(xorigin);
 			         supercar.appendChild(carname);
 			         
 			         Element yorigin = doc.createElement("YOrigin");			         
-			         yorigin.appendChild(doc.createTextNode("Y ORIGIN : "+Integer.toString(r.y)));
+			         yorigin.appendChild(doc.createTextNode(Integer.toString(r.y)));
 			         carname.appendChild(yorigin);
 			         supercar.appendChild(carname);
 			         
@@ -227,6 +246,12 @@ public class SampleHandler extends AbstractHandler {
 			         style.appendChild(doc.createTextNode(""+firstFontData.getStyle()));
 			         carname1.appendChild(style);
 			         supercar.appendChild(carname1);
+			         
+			         Element width = doc.createElement("Character_Width");
+			         width.appendChild(doc.createTextNode(""+charWidth));
+			         carname1.appendChild(width);
+			         supercar.appendChild(carname1);
+			         
 			         // write the content into xml file
 			         TransformerFactory transformerFactory = TransformerFactory.newInstance();
 			         Transformer transformer;
@@ -262,13 +287,13 @@ public class SampleHandler extends AbstractHandler {
 										// We simulate a long running operation here
 										Thread.sleep(2000);
 										
-											queryNumber++;
-											printLineNumber(queryNumber);
+											
 										
 									} catch (InterruptedException e) {
 										e.printStackTrace();
 									}
-									
+									//queryNumber++;
+									printLineNumber(++queryNumber);
 									
 								}
 							}
@@ -341,6 +366,7 @@ public class SampleHandler extends AbstractHandler {
 					ITextOperationTarget target = (ITextOperationTarget)editorPart.getAdapter(ITextOperationTarget.class);
 					if (target instanceof ITextViewer) {
 						ITextViewer textViewer = (ITextViewer)target;
+						
 						int topIndex = textViewer.getTopIndex() + 1;  // The ruler top index
 						int bottomIndex = textViewer.getBottomIndex() + 1; // The ruler bottom index
 						System.out.println("Showing - ( " + topIndex + " , " + bottomIndex + " )");
@@ -361,6 +387,20 @@ public class SampleHandler extends AbstractHandler {
 						System.out.println("2. Pixels Margin : " + textViewer.getTextWidget().getLinePixel(topIndex-1));
 						Composite c = textViewer.getTextWidget().getParent();
 						
+						int min;
+						try {
+							min = document.getLineOffset(topIndex);
+							for(int i=topIndex+1;i<=bottomIndex;i++){
+							
+								int temp = document.getLineOffset(i);
+								if(temp < min) min = temp;
+							
+							}
+							System.out.println("Minimum line offset is "+min);
+						}catch (BadLocationException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 						
 						
 						ScrollBar s = textViewer.getTextWidget().getHorizontalBar();
@@ -401,7 +441,7 @@ public class SampleHandler extends AbstractHandler {
 				         attrType7.setValue("Time_Stamp");
 				         carname7.setAttributeNode(attrType7);
 				         
-				         carname7.appendChild(doc.createTextNode(""+new GregorianCalendar().getTime()));
+				         carname7.appendChild(doc.createTextNode(""+System.currentTimeMillis()));
 				         supercar.appendChild(carname7);
 				         
 				         //line number info
